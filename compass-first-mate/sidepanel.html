@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compass First Mate</title>
+<style>
+  :root {
+    /* Compass Mission Enrollment palette */
+    --navy:        #0e2d40;
+    --navy-2:      #123a52;
+    --navy-rail:   #0c2537;
+    --teal:        #1b6e86;
+    --teal-btn:    #16697f;
+    --teal-btn-hi: #1b7d96;
+    --teal-light:  #2aa3c4;
+    --gold:        #f2b43a;
+    --green:       #2f9e6b;
+    --green-soft:  #e6f4ec;
+    --amber-bg:    #fdf3e3;
+
+    --bg:          #eef1f4;
+    --panel:       #ffffff;
+    --border:      #dbe2e8;
+    --border-soft: #e8edf1;
+    --text:        #16323f;
+    --muted:       #6a7b88;
+    --text-teal:   #1b6e86;
+
+    --radius:      10px;
+    --shadow:      0 1px 3px rgba(16,45,64,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  /* ---------- Top header ---------- */
+  .app-header {
+    display: flex; align-items: center; gap: 14px;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-header .compass-logo { height: 34px; width: auto; }
+  .app-header .mate {
+    display: flex; align-items: center; gap: 8px;
+    padding-left: 14px; border-left: 1px solid var(--border-soft);
+  }
+  .app-header .mate img { height: 34px; width: 34px; }
+  .app-header .mate .name {
+    font-size: 20px; font-weight: 700; color: var(--text-teal);
+    letter-spacing: 0.2px;
+  }
+  .app-header .spacer { flex: 1; }
+  .app-header .hbtn {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    padding: 4px; width: auto; margin: 0; font-size: 18px; line-height: 1;
+  }
+  .app-header .hbtn:hover { color: var(--navy); background: none; }
+
+  /* ---------- Shell: top tab bar + full-width content ---------- */
+  .shell { display: flex; flex-direction: column; min-height: calc(100% - 59px); }
+
+  .tabbar {
+    display: flex; flex-shrink: 0;
+    background: linear-gradient(180deg, var(--navy-2) 0%, var(--navy-rail) 100%);
+    padding: 0 6px;
+  }
+  .tabbar .tab {
+    flex: 1 1 0; min-width: 0;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 6px; margin: 0; cursor: pointer;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: #9fb4c2; font-size: 12px; font-weight: 600; letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  .tabbar .tab svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+  .tabbar .tab span { overflow: hidden; text-overflow: ellipsis; }
+  .tabbar .tab:hover { color: #d6e3ec; background: rgba(255,255,255,0.04); }
+  .tabbar .tab.active {
+    color: #ffffff; border-bottom-color: var(--gold);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .content { width: 100%; min-width: 0; padding: 14px; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 14px; margin-bottom: 12px;
+  }
+
+  /* intro strip */
+  .intro { display: flex; gap: 12px; align-items: flex-start; }
+  .intro .doc-ic { flex-shrink: 0; width: 30px; height: 36px; }
+  .intro .lead { font-size: 15px; font-weight: 700; color: var(--text-teal); margin-bottom: 2px; }
+  .intro .supp { font-size: 12px; color: var(--muted); }
+
+  /* section header with round badge */
+  .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .sec-head .badge-ic {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--teal); color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sec-head .badge-ic svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 1.8; }
+  .sec-head .titles .t { font-size: 15px; font-weight: 700; color: var(--text); }
+  .sec-head .titles .s { font-size: 12px; color: var(--muted); }
+  .sec-head .count {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-soft); color: var(--green);
+    border: 1px solid #bfe3cf; border-radius: 999px;
+    padding: 5px 11px; font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .sec-head .count svg { width: 14px; height: 14px; }
+
+  /* ---------- Buttons ---------- */
+  button {
+    width: 100%; padding: 12px 14px; border: none; border-radius: var(--radius);
+    background: var(--teal-btn); color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-bottom: 8px; text-align: left;
+    display: flex; align-items: center; gap: 12px;
+  }
+  button:hover { background: var(--teal-btn-hi); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button .b-ic { width: 22px; height: 22px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  button .b-ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  button .b-txt { display: flex; flex-direction: column; line-height: 1.25; }
+  button .b-txt .sub2 { font-size: 11px; font-weight: 400; opacity: 0.85; }
+
+  button.addwhite { background: #fff; color: var(--text); border: 1px solid var(--border); }
+  button.addwhite:hover { background: #f7f9fb; }
+  button.addwhite .b-txt .sub2 { color: var(--muted); opacity: 1; }
+
+  button.center { justify-content: center; text-align: center; }
+  button.run { background: var(--teal-btn); font-size: 15px; margin-top: 2px; }
+  button.ghost { background: #fff; color: var(--text-teal); border: 1px solid var(--border); justify-content: center; }
+  button.ghost:hover { background: #f7f9fb; }
+  button.gold { background: #fff; color: var(--gold); border: 1px solid var(--gold); justify-content: center; font-weight: 700; }
+  button.gold:hover { background: #fffaf0; }
+  button.green { background: var(--green); justify-content: center; }
+  button.green:hover { background: #278a5c; }
+
+  .hidden { display: none !important; }
+
+  /* drop zone */
+  #drop {
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    padding: 13px; text-align: center; color: var(--muted); font-size: 12px;
+    margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #fbfcfd;
+  }
+  #drop svg { width: 16px; height: 16px; stroke: var(--muted); fill: none; stroke-width: 1.6; }
+
+  .status { font-size: 12px; color: var(--muted); margin: 6px 2px 0; min-height: 14px; }
+
+  /* ---------- Documents list ---------- */
+  .doclist-head { font-size: 13px; font-weight: 700; color: var(--text); margin: 4px 2px 8px; }
+  .doclist-head .n { color: var(--muted); font-weight: 400; }
+
+  .doc-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid var(--border-soft); border-radius: 8px;
+    padding: 9px 11px; margin-bottom: 6px;
+  }
+  .doc-row > span:not(.thumb):not(.chev) { flex: 1 1 auto; min-width: 0; }
+  .doc-row.needs-fix { align-items: flex-start; border-color: #e6c98a; background: #fdf6e8; }
+  .doc-row .thumb {
+    width: 30px; min-width: 30px; height: 36px; border-radius: 4px;
+    flex: 0 0 30px;
+    background: #eaf1f5; border: 1px solid #d4e2ea;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; color: var(--teal); text-align: center; line-height: 1;
+  }
+  .doc-row .dt { font-weight: 700; color: var(--text); font-size: 13px; }
+  .doc-row .fv { color: var(--muted); font-size: 11px; overflow-wrap:anywhere; }
+  .doc-row .fv.filename { word-break: break-all; }
+  .doc-row .chev { color: #b7c4cd; flex-shrink: 0; }
+  .doc-row .chev svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+    background: #eaf1f5; color: var(--teal); font-weight: 600;
+  }
+  .conf-badge {
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;
+    background: var(--green-soft); color: var(--green); border:1px solid #bfe3cf;
+  }
+  .ocr-badge { background:#fbeed2; color:#a9791f; border:1px solid #ecd39a;
+    display:inline-block; padding:1px 7px; border-radius:999px; font-size:10px; margin-left:6px; }
+
+  /* manual fix box inside a doc row */
+  .manual-fix { margin-top: 8px; }
+  .manual-fix-label { font-size: 11px; color: #a9791f; margin-bottom: 4px; }
+  .minput {
+    width: 100%; margin-top: 4px; padding: 9px 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fff; color: var(--text); font-size: 14px;
+  }
+  .minput:focus { outline: none; border-color: var(--teal-light); }
+  .manual-fix-input { width: 100%; }
+  .now2-note { display:flex; gap:6px; align-items:center; font-size:12px; color:#1f7d54;
+    background:var(--green-soft); border:1px solid #bfe3cf; border-radius:6px;
+    padding:6px 9px; margin-top:6px; }
+  .now2-note .ok-dot { color:var(--green); font-weight:700; }
+  .row-inputs { display:flex; flex-wrap:wrap; gap:6px; }
+  /* Inputs inside a multi-row field flow left-to-right and wrap, each wide
+     enough to read its value — rather than stacking one per line in the
+     narrow panel. Single amount/lines fields keep the full-width .minput. */
+  .row-inputs .minput { flex:1 1 80px; min-width:80px; width:auto; margin-top:0; }
+  .row-actions { display:flex; gap:8px; margin-top:6px; }
+  .rowbtn { width:auto; margin:0; padding:6px 12px; font-size:12px; font-weight:600;
+    background:#fff; color:var(--text-teal); border:1px solid var(--border);
+    border-radius:6px; justify-content:center; }
+  .rowbtn:hover { background:#f2f6f8; }
+  .rowbtn.save { background:var(--teal-btn); color:#fff; border-color:var(--teal-btn); }
+  .rowbtn.save:hover { background:var(--teal-btn-hi); }
+
+  /* ---------- Next steps / instruction cards ---------- */
+  .allclear {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid #bfe3cf; background: var(--green-soft); color: #1f7d54;
+    border-radius: 8px; padding: 11px 12px; font-size: 13px;
+  }
+  .allclear .ok { color: var(--green); flex-shrink: 0; }
+  .allclear .ok svg { width: 20px; height: 20px; }
+  .inst { border-radius: 8px; padding: 11px 12px; margin-bottom: 8px; font-size: 13px; line-height: 1.45;
+    border: 1px solid var(--border); background: #fff; }
+  .inst.action { border-color:#e0a3a3; background:#fbecec; }
+  .inst.note   { border-color:#e6c98a; background:#fdf6e8; }
+  .inst.blocked{ border-color:#c7a3d8; background:#f6eefb; }
+  .inst .head { font-weight:700; margin-bottom:4px; display:flex; justify-content:space-between; gap:8px; }
+  .inst.action .head { color:#b5504f; }
+  .inst.note .head { color:#a9791f; }
+  .inst.blocked .head { color:#8a4fb0; }
+  .inst .src { font-size:10px; color:var(--muted); font-weight:400; white-space:nowrap; }
+  .inst .why { font-size:11px; color:var(--muted); margin-top:6px; }
+  .inst pre { margin:6px 0 0; font-size:12px; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+
+  /* analysis summary bar at top of Next steps */
+  .steps-summary { display:flex; align-items:center; gap:10px; justify-content:space-between;
+    border-radius:8px; padding:9px 12px; margin-bottom:10px; font-size:12px;
+    border:1px solid var(--border); background:#fff; }
+  .steps-summary .ss-label { font-weight:700; color:var(--text); }
+  .steps-summary .ss-counts { color:var(--muted); font-weight:600; text-align:right; }
+  .steps-summary.sum-attention { border-color:#e0a3a3; background:#fbecec; }
+  .steps-summary.sum-attention .ss-counts { color:#b5504f; }
+  .steps-summary.sum-note { border-color:#e6c98a; background:#fdf6e8; }
+  .steps-summary.sum-note .ss-counts { color:#a9791f; }
+  .steps-summary.sum-ok { border-color:#bfe3cf; background:var(--green-soft); }
+  .steps-summary.sum-ok .ss-counts { color:var(--green); }
+
+  /* documents still needed */
+  .missing-docs { border:1px solid #cdb3e0; background:#f6eefb; border-radius:8px;
+    padding:10px 12px; margin-bottom:10px; }
+  .md-head { font-weight:700; color:#7a3fa0; font-size:13px; margin-bottom:6px; }
+  .md-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text);
+    padding:3px 0; }
+  .md-dot { color:#9a6cbf; font-size:14px; }
+
+  /* remove-document button + entered values */
+  .doc-row-top { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .remove-doc { width:auto; margin:0 0 0 auto; padding:3px 8px; font-size:11px; font-weight:600;
+    background:#fff; color:#b5504f; border:1px solid #e0b3b3; border-radius:6px; }
+  .remove-doc:hover { background:#fbecec; }
+  .entered-val { display:flex; align-items:center; gap:8px; font-size:12px;
+    flex-wrap:wrap;
+    background:var(--green-soft); border:1px solid #bfe3cf; border-radius:6px;
+    padding:5px 9px; margin-top:6px; }
+  .entered-val .ev-label { color:#1f7d54; font-weight:700; white-space:nowrap; flex-shrink:0; }
+  .entered-val .ev-value { color:var(--text); flex:1 1 auto; min-width:60px;
+    white-space:normal; overflow-wrap:normal; word-break:normal; }
+  .entered-val .ev-edit { color:var(--text-teal); font-weight:600; cursor:pointer; text-decoration:underline; white-space:nowrap; flex-shrink:0; }
+  .entered-val .ev-edit:hover { color:var(--teal-btn-hi); }
+
+  .result { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-top:10px; }
+  .result .doctype { font-size:16px; font-weight:700; color:var(--green); margin-bottom:2px; }
+  .result .conf { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .result .filename { font-size:12px; color:var(--muted); word-break:break-all; margin-bottom:6px; }
+  .result .matches { font-size:12px; color:var(--muted); }
+  .result .matches li { margin:2px 0; }
+  .result .ocr-note { color:#a9791f; font-size:11px; margin-top:6px; }
+  details { margin-top:8px; }
+  summary { cursor:pointer; color:var(--text-teal); font-size:12px; }
+  pre { white-space:pre-wrap; word-break:break-word; font-size:11px; color:var(--muted); max-height:200px; overflow:auto; }
+
+  .sub { color: var(--muted); font-size:12px; }
+
+  /* ---------- Family Narrative ---------- */
+  .card.narrative { background: var(--amber-bg); border-color: #f0dcc0; }
+  .card.narrative .sec-head .badge-ic { background: var(--gold); }
+  .card.narrative .sec-head .titles .t { color: #b5822a; }
+  .narr-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .narr-note {
+    background:#fff; border:1px solid #f0dcc0; border-radius:8px; padding:10px 12px;
+    font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:flex-start;
+  }
+  .narr-note .i { color: var(--teal); flex-shrink:0; font-weight:700; }
+  .narr-note b { color: var(--text); font-weight:700; }
+  textarea.narr-input {
+    width:100%; min-height:96px; resize:vertical; padding:11px 12px; border-radius:8px;
+    border:1px solid var(--border); background:#fff; color:var(--text); font-size:13px;
+    font-family: inherit;
+  }
+  textarea.narr-input:focus { outline:none; border-color: var(--gold); }
+  .charcount { font-size:11px; color:var(--muted); text-align:right; margin-top:-4px; }
+
+  /* ---------- Narrative Summary ---------- */
+  .card.summary .sec-head .badge-ic { background: var(--green); }
+  .summary-out {
+    background:#f7faf8; border:1px solid var(--border-soft); border-radius:8px;
+    padding:12px; font-size:13px; color:var(--muted); display:flex; gap:8px; align-items:flex-start;
+    min-height:44px;
+  }
+  .summary-out .sp { flex-shrink:0; }
+  .summary-head-actions { margin-left:auto; }
+  .summary-head-actions button { width:auto; margin:0; padding:8px 12px; font-size:12px; }
+
+  .footer-clear { margin-top: 4px; }
+</style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="app-header">
+    <img class="compass-logo" src="assets/Compass Logo_1000x244.jpg" alt="Compass Mission Enrollment" />
+    <div class="mate">
+      <img src="assets/Compass_First Mate Icon.png" alt="First Mate" />
+      <span class="name">First Mate</span>
+    </div>
+    <span class="spacer"></span>
+    <button class="hbtn" id="pinBtn" title="Keep panel open">⚲</button>
+  </header>
+
+  <div class="shell">
+    <!-- ===== Top tab bar (horizontal, full-width content below) ===== -->
+    <nav class="tabbar" role="tablist">
+      <button class="tab active" data-view="prep" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6l1 2h3v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5h3z"/><circle cx="12" cy="13" r="3"/></svg>
+        <span>Prep</span>
+      </button>
+      <button class="tab" data-view="checklist" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+        <span>Checklist</span>
+      </button>
+      <button class="tab" data-view="notes" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v6h6"/></svg>
+        <span>Notes</span>
+      </button>
+    </nav>
+
+    <!-- ===== Main content ===== -->
+    <main class="content">
+
+      <!-- Prep view -->
+      <section data-view-panel="prep">
+
+        <!-- Intro strip -->
+        <div class="card intro">
+          <svg class="doc-ic" viewBox="0 0 30 36"><rect x="1" y="1" width="28" height="34" rx="3" fill="#eaf1f5" stroke="#1b6e86" stroke-width="1.5"/><path d="M8 10h14M8 15h14M8 20h10" stroke="#1b6e86" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div>
+            <div class="lead">Start with the Form 1040, then add each supported document.</div>
+            <div class="supp">Supported: 1040 / 1040-SR · W-2 · Wages Summary · Schedule 1 · Schedule C · Schedule E · Schedule F</div>
+          </div>
+        </div>
+
+        <!-- Document Review card -->
+        <div class="card">
+          <div class="sec-head">
+            <div class="badge-ic">
+              <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4"/></svg>
+            </div>
+            <div class="titles">
+              <div class="t">Document Review</div>
+              <div class="s">Upload and analyze all required documents.</div>
+            </div>
+            <span class="count hidden" id="docCount"><svg viewBox="0 0 24 24" fill="#2f9e6b"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span id="docCountText">0 documents analyzed</span></span>
+          </div>
+
+          <button id="scanTab">
+            <span class="b-ic"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4"/></svg></span>
+            <span class="b-txt"><span>Add Document to Review</span><span class="sub2">(Clarity or FACTS)</span></span>
+          </button>
+
+          <button id="sssScrape">
+            <span class="b-ic"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            <span class="b-txt"><span>Add Document to Review</span><span class="sub2">(SSS)</span></span>
+          </button>
+
+          <button id="openLocal" class="addwhite">
+            <span class="b-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M3 20h18"/></svg></span>
+            <span class="b-txt"><span>Add Document to Review</span><span class="sub2">(Downloaded file)</span></span>
+          </button>
+          <input id="fileInput" type="file" accept="application/pdf,.pdf,image/*" class="hidden" />
+
+          <div id="drop"><svg viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>…or drop a PDF or scanned image here</div>
+
+          <div class="status" id="status"></div>
+          <div id="resultBox"></div>
+
+          <!-- Documents in this review -->
+          <div id="sessionSection" class="hidden" style="margin-top:14px;">
+            <div class="doclist-head">Documents in this review <span class="n" id="docListCount">(0 files)</span></div>
+            <div id="sessionList"></div>
+          </div>
+        </div>
+
+        <!-- Run Analysis -->
+        <button class="run center" id="runAnalysis">
+          <span class="b-ic"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" /></svg></span>
+          Run Analysis
+        </button>
+
+        <!-- Next steps -->
+        <div id="instructionsSection" class="card hidden">
+          <div class="sec-head" style="margin-bottom:8px;">
+            <div class="titles"><div class="t">Next steps</div><div class="s">From your rules workbook</div></div>
+          </div>
+          <div id="instructionsList"></div>
+          <div id="aiSection" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- Family Narrative -->
+        <div class="card narrative">
+          <div class="sec-head">
+            <div class="badge-ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H7l-3 3z"/><path d="M8 9h8M8 12h5"/></svg></div>
+            <div class="titles"><div class="t">Family Narrative</div><div class="s">Paste all family narrative responses from the application.</div></div>
+          </div>
+          <div class="narr-grid">
+            <div class="narr-note"><span class="i">ⓘ</span><span><b>No narrative available?</b> Simply skip this section and continue with your review.</span></div>
+            <textarea class="narr-input" id="narrativeInput" maxlength="25000" placeholder="Paste family narrative(s) here…"></textarea>
+            <div class="charcount"><span id="narrCount">0</span> / 25,000 characters</div>
+            <button class="gold" id="summarizeNarrative">
+              <span class="b-ic"><svg viewBox="0 0 24 24" style="stroke:var(--gold)"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span>
+              Summarize Narrative
+            </button>
+          </div>
+        </div>
+
+        <!-- Narrative Summary -->
+        <div class="card summary">
+          <div class="sec-head">
+            <div class="badge-ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+            <div class="titles"><div class="t">Narrative Summary</div></div>
+            <div class="summary-head-actions">
+              <button class="green" id="copySummary">
+                <span class="b-ic"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span>
+                Copy Summary
+              </button>
+            </div>
+          </div>
+          <div class="summary-out" id="narrativeSummary">
+            <span class="sp"><svg viewBox="0 0 24 24" width="18" height="18" style="stroke:var(--teal);fill:none;stroke-width:1.8"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span>
+            <span>Your summarized narrative will appear here after you select "Summarize Narrative."</span>
+          </div>
+        </div>
+
+        <!-- Clear review -->
+        <button class="ghost footer-clear" id="clearSession">
+          <span class="b-ic"><svg viewBox="0 0 24 24" style="stroke:var(--text-teal)"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></span>
+        Clear Review
+      </button>
+
+      </section>
+
+      <!-- Checklist view (placeholder) -->
+      <section data-view-panel="checklist" class="hidden">
+        <div class="card"><div class="sec-head"><div class="titles"><div class="t">Checklist</div><div class="s">Coming soon.</div></div></div></div>
+      </section>
+
+      <!-- Notes view (placeholder) -->
+      <section data-view-panel="notes" class="hidden">
+        <div class="card"><div class="sec-head"><div class="titles"><div class="t">Notes</div><div class="s">Coming soon.</div></div></div></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="lib/pdf.min.js"></script>
+  <script src="lib/tesseract/tesseract.min.js"></script>
+  <script src="detector.js"></script>
+  <script src="layout.js"></script>
+  <script src="segment.js"></script>
+  <script src="fields.js"></script>
+  <script src="rules.js"></script>
+  <script src="ocr.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+{
+  "_source": "Prepping_Tax_Document_Data.xlsx — sheet 'Details'",
+  "_note": "Each rule mirrors one spreadsheet row. 'field' names map to extractors in fields.js. 'check' is executed by rules.js. Text from the sheet is preserved verbatim in 'location', 'logic' and 'output' for display.",
+  "thresholds": {
+    "w2_shortfall": 20000,
+    "schedC_other_expenses": 10000
+  },
+  "rules": [
+    {
+      "id": "w2_sum_more_than_1040",
+      "sheetRow": 3,
+      "docType": "Form 1040",
+      "location": "1a Total amount from Form(s) W-2, box 1 (see instructions) [Box 1a]",
+      "logic": "Sum of W2(s) are more than what is listed on the 1040",
+      "output": "The sum of W2(s) Income is $xx more than the 1040 Income - Make Note",
+      "check": "w2_sum_vs_1040_more",
+      "severity": "note",
+      "requires": [
+        "w2_sum",
+        "f1040_wages"
+      ],
+      "step": 1
+    },
+    {
+      "id": "w2_sum_short_by_20k",
+      "sheetRow": 4,
+      "docType": "W2",
+      "location": "1 Wages, tips, other compensation [Box 1]",
+      "logic": "Sum of W2(s) is $20,000+ less than what is listed on the 1040",
+      "output": "The sum of W2(s) Income is $xx less than the 1040 Income - Request additional W2s",
+      "check": "w2_sum_vs_1040_short",
+      "severity": "action",
+      "requires": [
+        "w2_sum",
+        "f1040_wages"
+      ],
+      "step": 1
+    },
+    {
+      "id": "f1040_line8_sched1",
+      "sheetRow": 6,
+      "docType": "Form 1040",
+      "location": "8 Additional income from Schedule 1, line 10 [Box 8]",
+      "logic": "Value is greater than 0, check if Schedule 1 is present in the file. If present, no further action. If not present, and the sum of all Schedule C(s) Box 31 and Schedule E(s) Box 40 equal the value on 1040 Box 8, no further action. If not present, and that sum is not equal to 1040 Box 8, send Output Instruction.",
+      "output": "Value is on 1040, Line 8 - Request Schedule 1",
+      "check": "line8_sched1_or_schedCE_match",
+      "field": "f1040_line8",
+      "missingDoc": "Schedule 1",
+      "severity": "action",
+      "step": 5
+    },
+    {
+      "id": "f1040_line23_sched2",
+      "sheetRow": 8,
+      "docType": "Form 1040",
+      "location": "23 Other taxes, including self-employment tax, from Schedule 2, line 21 [Box 23]",
+      "logic": "Value is greater than 0, check if Schedule 2 is present in the file. If present, no further action. If not present, send Output Instruction.",
+      "output": "Value is on 1040, Line 23 - Request Schedule 2",
+      "check": "gt_zero_and_missing_doc",
+      "field": "f1040_line23",
+      "missingDoc": "Schedule 2",
+      "severity": "action",
+      "step": 7
+    },
+    {
+      "id": "sched1_line3_schedC",
+      "sheetRow": 10,
+      "docType": "Schedule 1",
+      "location": "3 Business income or (loss). Attach Schedule C [Box 3]",
+      "logic": "Value is greater than 0, check if Schedule C is present in the file. If present, no further action. If not present, send Output Instruction.",
+      "output": "Value is on Schedule 1, Line 3 - Request Schedule C",
+      "check": "gt_zero_and_missing_doc",
+      "field": "sched1_line3",
+      "missingDoc": "Schedule C",
+      "severity": "action",
+      "step": 9
+    },
+    {
+      "id": "sched1_line5_schedE",
+      "sheetRow": 12,
+      "docType": "Schedule 1",
+      "location": "5 Rental real estate, royalties, partnerships, S corporations, trusts, etc. Attach Schedule E [Box 5]",
+      "logic": "Value is greater than 0, check if Schedule E is present in the file. If present, no further action. If not present, send Output Instruction.",
+      "output": "Value is on Schedule 1, Line 5 - Request Schedule E",
+      "check": "gt_zero_and_missing_doc",
+      "field": "sched1_line5",
+      "missingDoc": "Schedule E",
+      "severity": "action",
+      "step": 11
+    },
+    {
+      "id": "sched1_line6_schedF",
+      "sheetRow": 14,
+      "docType": "Schedule 1",
+      "location": "6 Farm income or (loss). Attach Schedule F [Box 6]",
+      "logic": "Value is greater than 0, check if Schedule F is present in the file. If present, no further action. If not present, send Output Instruction.",
+      "output": "Value is on Schedule 1, Line 6 - Request Schedule F",
+      "check": "gt_zero_and_missing_doc",
+      "field": "sched1_line6",
+      "missingDoc": "Schedule F",
+      "severity": "action",
+      "step": 13
+    },
+    {
+      "id": "schedC_sum_less_than_sched1",
+      "sheetRow": 16,
+      "docType": "Schedule 1",
+      "location": "3 Business income or (loss). Attach Schedule C [Box 3]  /  Schedule C Box 31 Net profit or (loss)",
+      "logic": "Sum of Schedule C(s) are less than what is listed on the Schedule 1",
+      "output": "The sum of Schedule C(s) Profit/Loss is $xx less than the Schedule 1 - Request additional Schedule Cs",
+      "check": "schedC_sum_vs_sched1",
+      "severity": "action",
+      "requires": [
+        "schedC_sum",
+        "sched1_line3"
+      ],
+      "step": 15
+    },
+    {
+      "id": "schedE_k1_eins",
+      "sheetRow": 19,
+      "docType": "Schedule E",
+      "location": "28 [A]-[D] (a) Name + (d) Employer identification number",
+      "logic": "28 [A](d), [B](d), [C](d), and/or [D](d): Value is greater than null AND unique in comparison to all 28 (d) values. Capture the Business Name(s) from 28 (a) and EIN(s) from 28 (d)",
+      "output": "K-1 is needed for the following Businesses:\n\n(EIN) - (Business Name)",
+      "check": "schedE_collect_eins",
+      "severity": "action",
+      "fuzzy": false,
+      "step": 17
+    },
+    {
+      "id": "schedE_see_statement",
+      "sheetRow": 21,
+      "docType": "Schedule E",
+      "location": "28 [A] (a) Name",
+      "logic": "28 [A](a) = \"See statement\" OR \"See statement #\" (If there is a statement number assigned, search for corresponding Statement #)",
+      "output": "K-1 is needed for the following Businesses:  (EIN) - (Business Name)",
+      "check": "schedE_see_statement",
+      "severity": "action",
+      "fuzzy": true,
+      "fuzzyReason": "Requires locating a referenced Federal Statement page and reading business names/EINs from free-form layout.",
+      "step": 19
+    },
+    {
+      "id": "fed_statement_names_eins",
+      "sheetRow": 22,
+      "docType": "Federal Statements",
+      "location": "Statement # - Schedule E, Page 2, Line 28 — Name + EIN",
+      "logic": "Capture the Business Name(s) and unique EINs",
+      "output": "Capture the Business Name(s) and unique EINs",
+      "check": "fed_statement_collect",
+      "severity": "info",
+      "fuzzy": true,
+      "fuzzyReason": "Free-form statement layout; names and EINs are not at fixed labels.",
+      "step": 19
+    },
+    {
+      "id": "roa_w2_sum_more",
+      "sheetRow": 24,
+      "docType": "Form 1040 Record of Account",
+      "location": "Total Wages:",
+      "logic": "Sum Wages, Tips and Other Compensation(s) is more than what is listed on the Form 1040 Record of Account",
+      "output": "The sum of W2(s) Income is $xx more than the 1040 Income - Make Note",
+      "check": "w2_sum_vs_1040_more",
+      "severity": "note",
+      "requires": [
+        "w2_sum",
+        "f1040_wages"
+      ],
+      "step": 21
+    },
+    {
+      "id": "roa_w2_sum_short_20k",
+      "sheetRow": 25,
+      "docType": "Wage and Income Transcript",
+      "location": "Wages, Tips and Other Compensation:",
+      "logic": "Sum Wages, Tips and Other Compensation(s) is $20,000+ less than what is listed on the 1040 Record of Account",
+      "output": "The sum of W2(s) Income is $xx less than the 1040 Income - Request additional W2s",
+      "check": "w2_sum_vs_1040_short",
+      "severity": "action",
+      "requires": [
+        "w2_sum",
+        "f1040_wages"
+      ],
+      "step": 21
+    },
+    {
+      "id": "roa_schedC_other_expenses",
+      "sheetRow": 27,
+      "docType": "Form 1040 Record of Account",
+      "location": "[Schedule C - Profit or Loss From Business (Occurrence #: x) section] Other expenses:",
+      "logic": "Value is greater than $10,000 per business",
+      "output": "Schedule C Transcript Other Expenses is greater than $10,000 - Request Schedule C(s)",
+      "check": "gt_threshold",
+      "field": "roa_schedC_other_expenses",
+      "threshold": 10000,
+      "severity": "action",
+      "step": 25
+    },
+    {
+      "id": "roa_partnership_income",
+      "sheetRow": 29,
+      "docType": "Form 1040 Record of Account",
+      "location": "[Schedule E--Supplemental Income and Loss] Partnership income:",
+      "logic": "Value is greater than $0",
+      "output": "Partnership Income is present - Request 1040 with all Files, Schedules, and Attachements & K-1",
+      "check": "gt_threshold",
+      "field": "roa_partnership_income",
+      "threshold": 0,
+      "severity": "action",
+      "step": 27
+    },
+    {
+      "id": "roa_partnership_loss",
+      "sheetRow": 31,
+      "docType": "Form 1040 Record of Account",
+      "location": "[Schedule E--Supplemental Income and Loss] Partnership loss:",
+      "logic": "Value is less than $0",
+      "output": "Partnership Loss is present - Request 1040 with all Files, Schedules, and Attachements & K-1",
+      "check": "lt_threshold",
+      "field": "roa_partnership_loss",
+      "threshold": 0,
+      "severity": "action",
+      "step": 28
+    },
+    {
+      "id": "roa_no_return_filed",
+      "sheetRow": 33,
+      "docType": "Form 1040 Record of Account",
+      "location": "No Record of return filed.",
+      "logic": "No Record of return filed.",
+      "output": "No return has been filed - Request 1040 with all Files, Schedules, and Attachements.\n\nIf family advised they do not have the 1040, request monthly budget and 6 months of Bank Statements.",
+      "check": "roa_no_return_filed",
+      "severity": "action",
+      "step": 30
+    },
+    {
+      "id": "f1040_1a_no_w2",
+      "sheetRow": 34,
+      "docType": "Form 1040",
+      "location": "1a Total amount from Form(s) W-2, box 1 (see instructions) [Box 1a]",
+      "logic": "If 1040 1a is null or 0",
+      "output": "No W2's required based on 1040 1a value",
+      "check": "wage_zero_no_w2",
+      "field": "f1040_wages",
+      "severity": "ok",
+      "step": 2
+    },
+    {
+      "id": "roa_total_wages_no_w2",
+      "sheetRow": 35,
+      "docType": "Form 1040 Record of Account",
+      "location": "Total Wages:",
+      "logic": "If 1040 Total Wages is null or 0",
+      "output": "No W2's required based on 1040 Total Wages value",
+      "check": "wage_zero_no_w2",
+      "field": "f1040_wages",
+      "severity": "ok",
+      "step": 22
+    },
+    {
+      "id": "all_documents_in",
+      "sheetRow": 36,
+      "docType": "N/A",
+      "location": "N/A",
+      "logic": "All logic comes back with positive results (all documents are in per the logic checks)",
+      "output": "Good news! No further action required for documents.",
+      "check": "all_clear",
+      "severity": "ok",
+      "step": 31
+    }
+  ]
+}
